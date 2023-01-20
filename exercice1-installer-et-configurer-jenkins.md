@@ -10,7 +10,7 @@ Cet exercice a pour objectifs :
 
 * Avoir sur sa machine git, docker et docker-compose installé
 * Créer un fork dans votre compte github du dépôt : https://github.com/vanessakovalsky/python-api-handle-it.git 
-* Cloner ce dépôt
+* Cloner le dépôt de cet exercice : git clone https://github.com/vanessakovalsky/jenkins-training 
 
 ## Installation de jenkins
 
