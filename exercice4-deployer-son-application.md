@@ -19,7 +19,7 @@ Cet exercice a pour objectifs :
              
             steps 
    {
-                sh "docker run -d -p 8003:8080 nikhilnidhi/samplewebapp"
+                sh "docker run -d -p 5000:5000 vanessakovalsky/mypythonapp"
  
             }
         }
