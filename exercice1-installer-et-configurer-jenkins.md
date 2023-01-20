@@ -66,4 +66,7 @@ docker-compose up -d --build
 * Côté Jenkins, aller dans le job
 * Dans la rubrique Build Triggers, cochez la case : GitHub hook trigger for GITScm polling 
 
+
+* Si votre jenkins est en local il faut en plus paramètrer une URL, voir ici pour cela : https://webhookrelay.com/blog/2017/11/23/github-jenkins-guide/#Step-5-Configuring-Webhook-Relay
+
 -> Votre job est configuré pour être lancé à chaque push sur la branche master dans votre dépôt Github
