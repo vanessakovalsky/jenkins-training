@@ -54,19 +54,51 @@ docker-compose up -d --build
 
 
 ## Configurer Github pour déclencher un build à chaque commit
+
+### Si votre projet jenkins a une URL publique : 
 * Vous avez besoin d'un token d'API de Jenkins pour configurer le webhook dans github
 * Sur jenkins, cliquer sur votre nom en haut à droite
 * Puis sur Configure dans le menu
 * Dans la section API Token, cliquer sur Add new token, et copier le token généré
+
+### Si votre projet jenkins a une URL locale non exposée sur internet :
+
+* Si votre jenkins est en local il faut en plus installer et utiliser un relay qui se permettra à Jenkins et à Github de communiquer via une URL publique. Pour cela voici les étapes à suivre : 
+    * Installer l'outil CLI en fonction de votre OS : https://webhookrelay.com/v1/installation/cli 
+    * Se connecter (avec votre compte github) sur https://my.webhookrelay.com/ 
+    * Générer un token d'identification sur la page Token (une fois connecté dans le menu de gauche Access tokens > + Generate token) : https://my.webhookrelay.com/tokens 
+    * Lors de la creation du token, webhook relay vous donne une commande de connexion de la forme
+    ```
+    relay login -k [key] -s [secret]
+    ```
+    * Copier cette commande et exécuter la dans un terminal pour pouvoir vous connecter à webhook relay
+    * Puis lançons le relay entre votre jenkins local et webhook relay avec la commande :
+    ```
+    relay forward --bucket github-jenkins http://localhost:8080/github-webhook/
+    ```
+    * Vous obtenez alors une réponse de ce type là, noter l'URL qui se trouve dans la réponse :
+    ```
+    Forwarding:
+    https://my.webhookrelay.com/v1/webhooks/6edf55c7-e774-46f8-a058-f4d9c527a6a7 -> http://localhost:8080/github-webhook/
+    Starting webhook relay agent...
+    1.511438424864371e+09    info    webhook relay ready...    {"host": "api.webhookrelay.com:8080"}
+    ```
+    * Vous avez l'URL nécessaire pour la suite
+
+### Dans tous les cas il faut configurer github et jenkins comme suit une fois l'URL obtenue
+
 * Aller sur votre projet Github
 * Dans les paramètres, choisir Webhook
 * Cliquer sur Add webhook :
-* * Dans payload URL, entrer l'adresse de Jenkins sous la forme http://[login]:[APITOKEN]@[URLduJenkins.com:8080]/github-webhook
+* * Dans payload URL, entrer l'adresse de Jenkins sous la forme
+    * Pour les url publique: http://[login]:[APITOKEN]@[URLduJenkins.com:8080]/github-webhook
+    * Pour les URL locale : https://[id].hooks.webrelay.com  (URL à récupérer lors du lancement de la commande relay forward, qui doit rester démarrer pour faire vos tests (pas de Ctrl+C))
 * Enregistrer
 * Côté Jenkins, aller dans le job
 * Dans la rubrique Build Triggers, cochez la case : GitHub hook trigger for GITScm polling 
 
 
-* Si votre jenkins est en local il faut en plus paramètrer une URL, voir ici pour cela : https://webhookrelay.com/blog/2017/11/23/github-jenkins-guide/#Step-5-Configuring-Webhook-Relay
+
 
 -> Votre job est configuré pour être lancé à chaque push sur la branche master dans votre dépôt Github
+/!\ Afin que le lien se fasse, il faut configurer un pipeline qui fera un git clone au moins, et le lancer une première fois

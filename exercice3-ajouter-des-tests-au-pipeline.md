@@ -46,7 +46,7 @@ Cet exercice a pour objectifs
             }
         }
 ```
-* Ici quelque remarques sur la syntaxe :
+* Ici quelques remarques sur la syntaxe :
     * agent : définit l'environnement d'exécution de l'étape
     * reuseNode true : permet d'utiliser l'environnement des étapes précédents (le contenu du git clone)
     * args : permet de donner des options au lancement d'un conteneur, ici un montage dans le dossier qui nous intéresse
