@@ -1,0 +1,90 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone repository') {
+            steps {
+                git credentialsId: 'git', url: 'https://github.com/vanessakovalsky/python-api-handle-it'
+            }
+        }
+        
+        stage('Build Pylint image') {
+            steps {
+                script {
+                    dockerImage = docker.build("vanessakovalsky/mypylint:latest","-f docker-test/pylint/Dockerfile docker-test/pylint/")
+                }
+            }
+        }
+        
+        stage('Push pylint image') {
+            steps {
+                script {
+                    withDockerRegistry([ credentialsId: "dockerhubaccount", url: "" ]) {
+                    dockerImage.push()
+                    }
+                }
+            }
+        }
+        
+        stage ('Pylint'){
+            agent {
+                docker {
+                    image 'vanessakovalsky/mypylint'
+                    args '-v ${PWD}:/app'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'pylint --recursive yes --exit-zero app '
+            }
+        }
+        
+        stage('Build Unittest image') {
+            steps {
+                script {
+                    dockerImage2 = docker.build("vanessakovalsky/myunittest:latest","-f docker-test/unittest/Dockerfile docker-test/unittest/")
+                }
+            }
+        }
+        
+        stage('Push unittest image') {
+            steps {
+                script {
+                    withDockerRegistry([ credentialsId: "dockerhubaccount", url: "" ]) {
+                    dockerImage2.push()
+                    }
+                }
+            }
+        }
+        
+        stage ('Unit tests'){
+            agent {
+                docker {
+                    image 'vanessakovalsky/myunittest'
+                    args '-v ${PWD}:/app'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'cd app; python -m unittest test/unit/test.py '
+            }
+        }
+       
+        
+        stage('Build image') {
+            steps {
+                script {
+                    dockerImage = docker.build("vanessakovalsky/mypythonapp:latest","-f docker-app/python/Dockerfile .")
+                }
+            }
+        }
+         stage('Push image') {
+            steps {
+                script {
+                    withDockerRegistry([ credentialsId: "dockerhubaccount", url: "" ]) {
+                    dockerImage.push()
+                    }
+                }
+            }
+         }
+    }
+}  
