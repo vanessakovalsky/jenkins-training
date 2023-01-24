@@ -1,0 +1,69 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone repository') {
+            steps {
+                git credentialsId: 'git', url: 'https://github.com/vanessakovalsky/python-api-handle-it'
+            }
+        }
+        
+        stage('Build Pylint image') {
+            steps {
+                script {
+                    dockerImage = docker.build("vanessakovalsky/mypylint:latest","-f docker-test/pylint/Dockerfile docker-test/pylint/")
+                }
+            }
+        }
+        
+        stage('Push pylint image') {
+            steps {
+                script {
+                    withDockerRegistry([ credentialsId: "dockerhubaccount", url: "" ]) {
+                    dockerImage.push()
+                    }
+                }
+            }
+        }
+        
+        stage ('Pylint'){
+            agent {
+                docker {
+                    image 'vanessakovalsky/mypylint'
+                    args '-v ${PWD}:/app'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'mkdir -p app/reports/pylint; pylint app > app/reports/pylint/report.json; pylint-json2html -o app/reports/pylint/report.html app/reports/pylint/report.json'
+            }
+        }
+        stage('Publish HTML'){
+            steps {
+                publishHTML (target : [allowMissing: false,
+                     alwaysLinkToLastBuild: true,
+                     keepAll: true,
+                     reportDir: 'app/reports',
+                     reportFiles: 'myreport.html',
+                     reportName: 'My Reports',
+                     reportTitles: 'The Report'])
+            }
+        }
+        
+        stage('Build image') {
+            steps {
+                script {
+                    dockerImage = docker.build("vanessakovalsky/mypythonapp:latest","-f docker-app/python/Dockerfile .")
+                }
+            }
+        }
+         stage('Push image') {
+            steps {
+                script {
+                    withDockerRegistry([ credentialsId: "dockerhubaccount", url: "" ]) {
+                    dockerImage.push()
+                    }
+                }
+            }
+         }
+    }
+}  
