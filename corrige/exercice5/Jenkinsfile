@@ -42,9 +42,9 @@ pipeline {
                 publishHTML (target : [allowMissing: false,
                      alwaysLinkToLastBuild: true,
                      keepAll: true,
-                     reportDir: 'app/reports',
-                     reportFiles: 'myreport.html',
-                     reportName: 'My Reports',
+                     reportDir: 'app/reports/pylint/',
+                     reportFiles: 'report.html',
+                     reportName: 'My Pylint Reports',
                      reportTitles: 'The Report'])
             }
         }
