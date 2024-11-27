@@ -163,13 +163,11 @@ pipeline {
 
 ### Étapes de Configuration
 1. Installer les plugins nécessaires :
-   - Maven Integration
-   - Git
-   - JDK Tools
+   - Docker plugin
+   - Docker pipeline
 
-2. Configurer les outils :
-   - "Manage Jenkins" > "Global Tool Configuration"
-   - Ajouter Maven et JDK
+2. Redémarrer jenkins:
+   - docker restart jenkins
 
 3. Créer un nouveau Pipeline Jenkins
    - Nouveau Job > Pipeline
