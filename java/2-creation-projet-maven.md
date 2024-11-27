@@ -94,7 +94,6 @@ pipeline {
 
     tools {
         maven 'Maven 3.8.1'
-        jdk 'JDK 11'
     }
 
     stages {
@@ -131,7 +130,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // Exemple de déploiement (à adapter)
-                sh 'cp target/*.jar /path/to/deployment/directory/'
+                sh 'echo "Déploiement du projet"'
             }
         }
     }
@@ -162,17 +161,32 @@ pipeline {
 ## Configuration de Jenkins
 
 ### Étapes de Configuration
-1. Installer les plugins nécessaires :
-   - Docker plugin
-   - Docker pipeline
+1. Configurer Maven
+   - Dans Administrer Jenkins > Tools, configurer une installation de Maven avec pour nom: ''
+   - Enregistrer
 
-2. Redémarrer jenkins:
-   - docker restart jenkins
+2. Définir la variable d'environnement
+   - Dans Administrer Jenkins > Systeme > Propriétés globales
+   - Cocher la case : Variables d'environnement puis cliquer sur Ajouter
+   - Définir une variable d'environnement avec les informations suivantes :
+         - nom : JAVA_HOME
+         - valeur : /opt/java/openjdk
+    - Enregistrer
 
-3. Créer un nouveau Pipeline Jenkins
+4. Créer un nouveau Pipeline Jenkins
    - Nouveau Job > Pipeline
-   - Configurer le SCM (Git)
+   - Configurer le SCM (Git) : https://github.com/vanessakovalsky/demo-java/
    - Sélectionner le Jenkinsfile du projet
+   - Enregistrer
+
+5. Exécuter le pipeline
+   - Revenir sur la page du projet
+   - Cliquer sur Lancer le build
+   - Allez vérifier l'exécution du build pour voir si toutes les étapes se sont bien passés
+         - Consulter les logs dans le menu Console Output
+         - Consulter l'affichage Graphique dans Pipeline Overview
+   - Une fois le Build terminé, aller observer les artifacts produits a partir de la page d'accusil du Build
+   - Vous pouvez également consulter le rapport de tests dans le menu Résultats des tests
 
 ## Bonnes Pratiques
 - Utiliser des credentials sécurisés
