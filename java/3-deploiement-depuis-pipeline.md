@@ -155,12 +155,23 @@ pipeline {
 - Une fois le conteneur construit et lancé, vous devriez pouvoir accéder à votre jenkins sur : http://localhost:8080 (votre identifiant/mot de passe est le même que celui que vous aviez défini, nous avons réutiliser le volume crée dans l'exercice 1)
 
 ### 1. Credentials Jenkins
-- `docker-registry-credentials` : Identifiants Docker Hub ou autre registre
+- `docker-registry-credentials` : Identifiants Docker Hub (compte à créé si vous n'en n'avez pas sur https://hub.docker.com)
 
 ### 2. Plugins Jenkins Nécessaires
 - Docker Pipeline
 - Credentials
 - Email Extension
+
+### 3. Vérifier que tout fonctionne
+
+- Lancer le build de votre pipeline
+- Une fois le pipeline terminé vérifié sur el docker hub que votre image est bien présente
+- En local sur votre poste vous pouvez récupérer votre image et la lancer
+```
+docker pull monutilisateur/monimage:numerobuild
+docker run --name mon-appli-java monutilisateur/monimage:numerobuild
+```
+- Un message 'Hello World' doit s'afficher
 
 ## Bonnes Pratiques
 - Utiliser des tags de version sémantique
