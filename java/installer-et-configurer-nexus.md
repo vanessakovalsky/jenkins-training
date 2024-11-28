@@ -212,12 +212,3 @@ bash configure-users.sh
 ## Ressources Complémentaires
 - Documentation Nexus : https://help.sonatype.com/repomanager3
 - Docker Hub Nexus : https://hub.docker.com/r/sonatype/nexus3
-```
-
-Cet exercice propose une approche complète pour :
-1. Installer Nexus avec Docker
-2. Configurer les dépôts Maven
-3. Gérer les utilisateurs et la sécurité
-4. Mettre en place des bonnes pratiques
-
-Voulez-vous que je développe un point en particulier ou que je vous aide à adapter ce guide à votre environnement spécifique ?
