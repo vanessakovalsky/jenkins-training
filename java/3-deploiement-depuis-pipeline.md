@@ -237,6 +237,17 @@ pipeline {
 
 ## Configuration Requise
 
+### 0.Configuration de votre environnement
+
+- Afin de préparer l'environnement d'exécution pour pouvoir exécuter les commandes dockers, nous allons devoir faire un peu de préparation
+- Commencer par arrêter votre conteneur jenkins : `docker stop jenkins`
+- Ensuite récupérer les fichiers 
+    - Dockerfile à cette adresse : https://github.com/vanessakovalsky/jenkins-training/blob/main/docker/Dockerfile
+    - docker-compose.yml à cette adresse : https://github.com/vanessakovalsky/jenkins-training/blob/main/docker/docker-compose.yml 
+- Ouvrir un terminal (ou un powershell) dans le dossier où se trouve les deux fichiers
+- Exécuter la commande : `docker compose up -d`
+- Une fois le conteneur construit et lancé, vous devriez pouvoir accéder à votre jenkins sur : http://localhost:8080 (votre identifiant/mot de passe est le même que celui que vous aviez défini, nous avons réutiliser le volume crée dans l'exercice 1)
+
 ### 1. Credentials Jenkins
 - `docker-registry-credentials` : Identifiants Docker Hub ou autre registre
 - (dans le cas d'un déploiement en production sur un serveur accessible en ssh et avec docker installé)`production-server-credentials` : Clé SSH pour le serveur de production
