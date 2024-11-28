@@ -250,13 +250,11 @@ pipeline {
 
 ### 1. Credentials Jenkins
 - `docker-registry-credentials` : Identifiants Docker Hub ou autre registre
-- (dans le cas d'un déploiement en production sur un serveur accessible en ssh et avec docker installé)`production-server-credentials` : Clé SSH pour le serveur de production
 
 ### 2. Plugins Jenkins Nécessaires
 - Docker Pipeline
 - Credentials
 - Email Extension
-- (dans le cas d'un déploiement en production sur un serveur accessible en ssh et avec docker installé) SSH
 
 ## Bonnes Pratiques
 - Utiliser des tags de version sémantique
