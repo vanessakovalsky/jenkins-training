@@ -49,35 +49,6 @@ L'objectif de l'exercice est de permettre aux participants de maîtriser l'admin
    - JNLP
    - Docker
 
-### Script de Création d'Agents
-
-```groovy
-import jenkins.model.*
-import hudson.slaves.*
-
-def jenkins = Jenkins.getInstance()
-
-// Création d'un agent SSH
-def linuxSlave = new DumbSlave(
-    "linux-build-agent",  // Agent name
-    "/home/jenkins",      // Remote root directory
-    new SSHLauncher(
-        "agent-host",     // Host
-        22,               // Port
-        "jenkins-creds",  // Credentials ID
-        "",               // JVM Options
-        "",               // JavaPath
-        ""                // Prefix Start Slave Command
-    )
-)
-
-// Configuration des labels
-linuxSlave.setLabelString("linux java build")
-linuxSlave.setNumExecutors(2)
-
-jenkins.addNode(linuxSlave)
-jenkins.save()
-```
 
 ### 2.2 Configuration Cloud
 1. Intégration Docker
@@ -88,7 +59,7 @@ jenkins.save()
 - Configurer 3 types différents d'agents
 - Implémenter une stratégie de répartition de charge
 - Mettre en place un agent Cloud dynamique
-```
+
 
 ### Partie 3 : Gestion des Plugins et Maintenance
 
@@ -159,7 +130,6 @@ ls -t jenkins-backup-*.tar.gz | tail -n +8 | xargs rm -f
 - Installer et configurer 5 plugins
 - Mettre en place un script de sauvegarde automatique
 - Tester la restauration à partir d'une sauvegarde
-```
 
 ### Partie 4 : Conception de Pipelines CI/CD
 
