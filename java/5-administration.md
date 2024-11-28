@@ -135,6 +135,7 @@ ls -t jenkins-backup-*.tar.gz | tail -n +8 | xargs rm -f
 
 
 // Pipeline CI/CD Complet
+``
 pipeline {
     agent {
         label 'linux && docker'
