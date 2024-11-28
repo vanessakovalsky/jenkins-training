@@ -58,33 +58,7 @@ EXPOSE 8080
 VOLUME ["/app/data"]
 ```
 
-## Mise à jour du `pom.xml`
-```xml
-<project>
-    <!-- Configurations précédentes -->
-    <properties>
-        <docker.image.prefix>votre-organisation</docker.image.prefix>
-        <docker.image.name>mon-application-java</docker.image.name>
-    </properties>
-
-    <build>
-        <plugins>
-            <!-- Plugins précédents -->
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>1.4.13</version>
-                <configuration>
-                    <repository>${docker.image.prefix}/${docker.image.name}</repository>
-                    <tag>${project.version}</tag>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project>
-```
-
-## Jenkinsfile Complet
+## Ajout dans le Jenkinsfile
 ```groovy
 pipeline {
     agent any
@@ -115,36 +89,6 @@ pipeline {
             }
         }
 
-        stage('Checkout') {
-            steps {
-                git branch: 'main', 
-                    url: 'https://github.com/votre-utilisateur/mon-application-java.git'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'mvn clean compile'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
-                }
-            }
-        }
-
-        stage('Package') {
-            steps {
-                sh 'mvn package -DskipTests=true'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
@@ -169,10 +113,6 @@ pipeline {
         stage('Déploiement Local') {
             steps {
                 script {
-                    // Création d'un volume pour la persistance des données
-                    sh '''
-                        docker volume create ${APP_CONTAINER_NAME}-data || true
-                    '''
 
                     // Démarrage du nouveau conteneur
                     sh """
@@ -180,22 +120,9 @@ pipeline {
                             --name ${APP_CONTAINER_NAME} \
                             --network ${DOCKER_NETWORK} \
                             -p 8080:8080 \
-                            -v ${APP_CONTAINER_NAME}-data:/app/data \
                             --restart unless-stopped \
                             ${DOCKER_IMAGE}:${DOCKER_TAG}
                     """
-                }
-            }
-        }
-
-        stage('Vérification du Déploiement') {
-            steps {
-                script {
-                    // Attendre le démarrage du conteneur
-                    sh 'sleep 30'
-                    
-                    // Test de santé basique
-                    sh 'curl http://localhost:8080/health || exit 1'
                 }
             }
         }
@@ -212,27 +139,6 @@ pipeline {
             }
         }
     }
-
-    post {
-        success {
-            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-            
-            emailext (
-                subject: "Déploiement Réussi: ${currentBuild.fullDisplayName}",
-                body: "L'application a été construite, testée et déployée avec succès.",
-                to: 'equipe@exemple.com'
-            )
-        }
-        
-        failure {
-            emailext (
-                subject: "Échec de Déploiement: ${currentBuild.fullDisplayName}",
-                body: "Le pipeline de déploiement a échoué. Veuillez vérifier les logs.",
-                to: 'equipe@exemple.com'
-            )
-        }
-    }
-}
 ```
 
 ## Configuration Requise
