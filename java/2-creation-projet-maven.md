@@ -162,7 +162,7 @@ pipeline {
 
 ### Étapes de Configuration
 1. Configurer Maven
-   - Dans Administrer Jenkins > Tools, configurer une installation de Maven avec pour nom: ''
+   - Dans Administrer Jenkins > Tools, configurer une installation de Maven avec pour nom: 'Maven 3.8.1' et la version 3.8.1
    - Enregistrer
 
 2. Définir la variable d'environnement
@@ -175,7 +175,7 @@ pipeline {
 
 4. Créer un nouveau Pipeline Jenkins
    - Nouveau Job > Pipeline
-   - Configurer le SCM (Git) : https://github.com/vanessakovalsky/demo-java/
+   - Configurer le SCM (Git) : https://github.com/vanessakovalsky/demo-java.git et branche */main
    - Sélectionner le Jenkinsfile du projet
    - Enregistrer
 
