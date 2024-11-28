@@ -26,38 +26,12 @@ L'objectif de l'exercice est de permettre aux participants de maîtriser l'admin
      * Auditeurs
    - Configurer des matrices de permissions granulaires
 
-### Scripts de Configuration
-
-```groovy
-// Configuration de la stratégie de sécurité
-import jenkins.model.*
-import hudson.security.*
-
-def instance = Jenkins.getInstance()
-
-// Configuration du realm d'authentification
-def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-instance.setSecurityRealm(hudsonRealm)
-
-// Création d'utilisateurs
-hudsonRealm.createAccount("admin", "password")
-hudsonRealm.createAccount("dev", "devpassword")
-
-// Configuration de la matrice de permissions
-def strategy = new GlobalMatrixAuthorizationStrategy()
-strategy.add(Jenkins.ADMINISTER, "admin")
-strategy.add(Item.BUILD, "dev")
-strategy.add(Item.READ, "anonymous")
-
-instance.setAuthorizationStrategy(strategy)
-instance.save()
-```
 
 ### Tâches Pratiques
 - Créer 3 utilisateurs avec des rôles différents
 - Configurer des permissions spécifiques
 - Mettre en place une authentification sécurisée
-```
+
 
 ### Partie 2 : Gestion des Agents et du Cloud
 
