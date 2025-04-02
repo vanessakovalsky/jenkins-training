@@ -9,5 +9,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 volumes:
   jenkins-data: 
-    external: true
     name: jenkins-data
