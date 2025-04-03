@@ -18,7 +18,7 @@ Cet exercice a pour objectifs
          stage('Build Pylint image') {
             steps {
                 script {
-                    dockerImage = docker.build("vanessakovalsky/mypylint:latest","-f docker-test/pylint/Dockerfile .")
+                    dockerImage = docker.build("vanessakovalsky/mypylint:latest","-f docker-test/pylint/Dockerfile docker-test/pylint/")
                 }
             }
         }
@@ -63,5 +63,5 @@ Cet exercice a pour objectifs
 ## Pour aller plus loin
 
 * La documentation de la syntaxe de pipeline : https://www.jenkins.io/doc/book/pipeline/syntax/ 
-* Il existe de nombreuses options pour les étapes de pipeline, vous pouvez vous aider de la documentation pour ajouter des étapes à votre build (execution de robot framework, autre outils d'analyse qualité ...)
+* Il existe de nombreuses options pour les étapes de pipeline, vous pouvez vous aider de la documentation pour ajouter des étapes à votre build (execution de robot framework, autres outils d'analyse qualité ...)
 * Des exemples d'étapes sont disponibles ici : https://www.jenkins.io/doc/pipeline/examples/ 
