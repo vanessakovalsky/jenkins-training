@@ -18,7 +18,7 @@ Cet exercice a pour objectifs
          stage('Build Pylint image') {
             steps {
                 script {
-                    dockerImage = docker.build("vanessakovalsky/mypylint:latest","-f docker-test/pylint/Dockerfile .")
+                    dockerImage = docker.build("vanessakovalsky/mypylint:latest","-f docker-test/pylint/Dockerfile docker-test/pylint/")
                 }
             }
         }
