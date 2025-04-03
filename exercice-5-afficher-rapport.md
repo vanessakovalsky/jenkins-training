@@ -1,7 +1,7 @@
 # Exercice 5 - Afficher les rapports HTML dans jenkins
 
 ## Objectifs
-Cet exercice a pour objectifs :
+Cet exercice a pour objectif :
 * d'ajouter à Jenkins un moyen de récupérer les rapports HTML et de les afficher
 
 ## Pré-requis
@@ -14,7 +14,7 @@ Cet exercice a pour objectifs :
 
 ## Utilisation dans un pipeline
 
-* Génération du rapport html avec pylint, remplacer l'étape(step) qui execute pylint par les lignes suivantes
+* Génération du rapport html avec pylint, remplacer l'étape(step) qui exécute pylint par les lignes suivantes
 ```
  steps {
                 sh 'mkdir -p app/reports/pylint; pylint --output-format json --recursive yes --exit-zero app > app/reports/pylint/report.json;pylint-json2html -o app/reports/pylint/report.html app/reports/pylint/report.json'
@@ -35,11 +35,11 @@ Cet exercice a pour objectifs :
             }
         }
 ```
-* Enregistrer votre pipeline et lancer un build
+* Enregistrez votre pipeline et lancez un build
 * Vous devriez à la fin du build avoir accès dans le menu à un item intitulé My Pylint Reports qui affiche le rapport de pylint
 
 ## Ajouter les autres rapports
 
-* Pour chaque outils d'analyse qualité et de tests que vous utilisez, générer un rapport HTML et publié le dans Jenkins avec HTML Publisher
+* Pour chaque outil d'analyse qualité et de tests que vous utilisez, générez un rapport HTML et publiez-le dans Jenkins avec HTML Publisher
 
 

@@ -8,7 +8,7 @@ Cet exercice a pour objectifs
 ## Pré-requis
 * Avoir fait l'exercice 1 et l'exercice 2
 * Avoir une image de conteneur avec un outil d'analyse qualité
-* Avoir une image de conteneur permettant l'exécution de tests unitaire
+* Avoir une image de conteneur permettant l'exécution de tests unitaires
 * Avoir des tests unitaires à exécuter
 
 ## Ajout de l'analyse qualité avec Pylint dans notre CI
@@ -48,20 +48,20 @@ Cet exercice a pour objectifs
 ```
 * Ici quelques remarques sur la syntaxe :
     * agent : définit l'environnement d'exécution de l'étape
-    * reuseNode true : permet d'utiliser l'environnement des étapes précédents (le contenu du git clone)
+    * reuseNode true : permet d'utiliser l'environnement des étapes précédentes (le contenu du git clone)
     * args : permet de donner des options au lancement d'un conteneur, ici un montage dans le dossier qui nous intéresse
-    * Pour pylint : pour ne pas empêcher la suite l'option --exit-zero : permet de renvoyer un code de sortie de 0, soit de valider l'étape, de sorte à ce que s'il y a des erreurs de remonté, le reste des étapes puissent s'exécuter
+    * Pour pylint : pour ne pas empêcher la suite l'option --exit-zero : permet de renvoyer un code de sortie de 0, soit de valider l'étape, de sorte à ce que s'il y a des erreurs de remontées, le reste des étapes puisse s'exécuter
 * Sauvegarder la configuration et lancer un build
 
 ## Ajouter l'exécution des tests unitaire
 
-* De la même façon que l'on a ajouter l'execution de pylint, ajouter les étapes suivantes au pipeline :
+* De la même façon que l'on a ajouté l'execution de pylint, ajouter les étapes suivantes au pipeline :
     * build de l'image pour les test
     * push de l'image pour les tests
-    * execution du conteneur qui exécute les tests
+    * exécution du conteneur qui exécute les tests
 
 ## Pour aller plus loin
 
 * La documentation de la syntaxe de pipeline : https://www.jenkins.io/doc/book/pipeline/syntax/ 
-* Il existe de nombreuses options pour les étapes de pipeline, vous pouvez vous aider de la documentation pour ajouter des étapes à votre built (execution de robot framework, autre outils d'analyse qualité ...)
-* Des exemples d'étapes sont disponible ici : https://www.jenkins.io/doc/pipeline/examples/ 
+* Il existe de nombreuses options pour les étapes de pipeline, vous pouvez vous aider de la documentation pour ajouter des étapes à votre build (execution de robot framework, autre outils d'analyse qualité ...)
+* Des exemples d'étapes sont disponibles ici : https://www.jenkins.io/doc/pipeline/examples/ 
