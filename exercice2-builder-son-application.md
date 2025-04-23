@@ -19,7 +19,7 @@ Cet exercice a pour objectifs :
     * Docker Pipeline
     * Docker Plugin
     * docker-build-step
-* Cliquer sur `Ìnstall without restart` et patienter que l'installation soit terminé
+* Cliquer sur `Install without restart` et patienter que l'installation soit terminée
 
 ![](https://i0.wp.com/iot4beginners.com/wp-content/uploads/2022/08/image-22.png?resize=768%2C465&ssl=1)
 
@@ -37,7 +37,7 @@ Cet exercice a pour objectifs :
 ## Ajouter le build à notre Pipeline
 
 * Venir dans le projet créé auparavant
-* Cliquer sur Configurer et entrer dans la secion Pipeline le script suivant (adapter l'adresse du dépôt à votre propre dépôt, le nom de l'image en mettant votre username, et l'identifiant utilisés pour les informations de connexion à Docker) : 
+* Cliquer sur Configurer et entrer dans la section Pipeline le script suivant (adapter l'adresse du dépôt à votre propre dépôt, le nom de l'image en mettant votre username, et l'identifiant utilisé pour les informations de connexion à Docker) : 
 ```
 pipeline {
     agent any
