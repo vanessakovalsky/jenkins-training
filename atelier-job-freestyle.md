@@ -174,7 +174,11 @@ describe('Application Tests', () => {
 EOF
 ```
 
-#### Étape 7 : Configuration du job Jenkins
+* Créer on se connecter sur github (https://github.com/)
+* Créer un projet public appelé nodejs-app
+* Pousser les fichiers créé sur le dépôt
+
+#### Étape 4 : Configuration du job Jenkins
 
 1. **Accédez à Jenkins** : http://localhost:8080
 2. **Créer un nouveau job** :
@@ -206,11 +210,7 @@ Build Environment:
 
 * Enregistrer le job
 
-### 🔧 Atelier 3 : Configuration des déclencheurs
-
-**Objectif :** Configurer différents types de déclencheurs
-
-#### Étape 1 : Déclencheur Poll SCM
+#### Étape 5 : Déclencheur Poll SCM
 
 ```cron
 # Syntaxe cron Jenkins
@@ -223,7 +223,7 @@ H H(0-7) * * *   # Une fois par jour entre 0h et 7h
 H H * * 0        # Une fois par semaine le dimanche
 ```
 
-#### Étape 2 : Configuration webhook
+#### Étape 6 : Configuration webhook
 
 1. **Dans GitHub** :
    - Settings → Webhooks → Add webhook
@@ -234,11 +234,10 @@ H H * * 0        # Une fois par semaine le dimanche
 2. **Dans Jenkins** :
    - Cocher "GitHub hook trigger for GITScm polling"
   
-### 🔧 Atelier 4 : Build steps avancés
 
-**Objectif :** Créer des étapes de build complètes avec Docker
+#### Étape 6 : Dockerfile pour l'application
 
-#### Étape 1 : Dockerfile pour l'application
+* Créer dans votre projet un fichier Dockerfile avec le contenu suivant :
 
 ```dockerfile
 # Dockerfile
@@ -265,7 +264,11 @@ USER node
 CMD ["npm", "start"]
 ```
 
-#### Étape 2 : Configuration du build Jenkins
+* Pensez à commit et push le fichier
+
+#### Étape 7 : Configuration du build Jenkins
+
+* Ajouter une étape dans votre job qui exécute les commandes shell suivantes :
 
 ```bash
 #!/bin/bash
@@ -313,11 +316,7 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
 echo "✅ Build terminé avec succès"
 ```
 
-### 🔧 Atelier 5 : Premier build complet
-
-**Objective :** Exécuter et analyser un build complet
-
-#### Étape 1 : Lancement du build
+#### Étape 7 : Lancement du build
 
 1. Accédez au job `nodejs-app-build`
 2. Cliquez sur "Lancer un build"
