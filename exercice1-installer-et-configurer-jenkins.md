@@ -1,104 +1,212 @@
-# Exercice 1 - Installer et configurer Jenkins
+# 🛠️ ATELIER PRATIQUE : Installation Jenkins avec Docker
+** Durée totale : 90 minutes**
 
-## Objectifs
+## Objectif
+Installer et configurer Jenkins dans un environnement Docker, puis effectuer la configuration initiale.
 
-Cet exercice a pour objectifs :
-* d'avoir un Jenkins installé et configurer
-* de découvrir l'interface et les concepts de Jenkins
+## Prérequis
+- Docker installé sur votre machine
+- Accès à Internet
+- Port 8080 disponible
 
-## Pré-requis
+## Étape 1 : Préparation de l'environnement
+** 5 minutes**
 
-* Avoir sur sa machine git, docker et docker-compose installé
-* Créer un fork dans votre compte github du dépôt : https://github.com/vanessakovalsky/python-api-handle-it.git 
-* Cloner le dépôt de cet exercice : git clone https://github.com/vanessakovalsky/jenkins-training 
+```bash
+# Créer un réseau Docker pour Jenkins
+docker network create jenkins
 
-## Installation de jenkins
-
-* A partir du dossier cloné, se mettre dans le dossier docker et lancer la commande :
+# Créer un volume pour persister les données
+docker volume create jenkins-docker-certs
+docker volume create jenkins-data
 ```
-docker-compose up -d --build
+
+### Étape 2 : Lancement du container Jenkins
+** 10 minutes**
+
+```bash
+# Lancer Jenkins avec Docker
+docker run \
+  --name jenkins-master \
+  --restart=on-failure \
+  --detach \
+  --network jenkins \
+  --env DOCKER_HOST=tcp://docker:2376 \
+  --env DOCKER_CERT_PATH=/certs/client \
+  --env DOCKER_TLS_VERIFY=1 \
+  --publish 8080:8080 \
+  --publish 50000:50000 \
+  --volume jenkins-data:/var/jenkins_home \
+  --volume jenkins-docker-certs:/certs/client:ro \
+  jenkins/jenkins:lts-jdk11
 ```
-* Cela permet d'avoir une image de jenkins qui contient Docker (qui nous sera utile pour les acitons d'intégration et de déploiement continue) et de lancer un conteneur
-* Une fois le conteneur lancé (vérifier qu'il est au statut up), se rendre à l'url : http://localhost:8080 pour accéder à l'interface de Jenkins
 
-## Configurer le jenkins
+## Étape 3 : Premier accès à Jenkins
+** 10 minutes**
 
-* La première chose que vous demande Jenkins est le mot de passe pour dévérouiller jenkins
-![](https://paper-attachments.dropbox.com/s_33CE5684927EB1F665F2EEF2A8A615DFA881F46F04918B588BABDF4D08ACF025_1645484899181_jenkins-getting-started.png)
-* Pour récupérer ce mot de passe afficher les logs de votre conteneur, il doit se trouver dedans :
-![](https://paper-attachments.dropbox.com/s_33CE5684927EB1F665F2EEF2A8A615DFA881F46F04918B588BABDF4D08ACF025_1645553155314_Screenshot+from+2022-02-22+19-05-37.png)
-* Ensuite Jenkins vous propose d'installer les plugins suggérés ou de choisir les plugins à installé, laissez l'option par défaut d'installer les plugins suggérés :
-![](https://paper-attachments.dropbox.com/s_33CE5684927EB1F665F2EEF2A8A615DFA881F46F04918B588BABDF4D08ACF025_1645661908679_plugins-installation.png)
-* Puis Jenkins vous demande de créer un compte administrateur, remplir le formulaire et cliquer sur  `Save and continue`
-![](https://paper-attachments.dropbox.com/s_33CE5684927EB1F665F2EEF2A8A615DFA881F46F04918B588BABDF4D08ACF025_1645717974971_Screenshot+from+2022-02-24+16-52-36.png)
-* Votre Jenkins est maintenant prêt à être utilisé
+1. **Ouvrir votre navigateur**
+   - Aller sur `http://localhost:8080`
 
-## Découverte de Jenkins
+2. **Récupérer le mot de passe initial**
+   ```bash
+   # Afficher le mot de passe d'administration
+   docker exec jenkins-master cat /var/jenkins_home/secrets/initialAdminPassword
+   ```
 
-* Lorsque vous arrivez sur le tableau de bord de Jenkins, vous pouvez créer un nouvel item
-![](images/jenkins_new.png) 
-* Il s'agit ici des éléments suivants :
-    * Projet free-style : permet de construire des jobs jenkins avec l'ancienne façon de faire de jenkins, avec des tâches les unes après les autres
-    * Pipeline : permet de construire des jobs jenkins avec des tâches en parallèle, c'est aujourd'hui la méthode recommandé d'utilisation de Jenkins
-    * Projet multi-configuration : permet de gérer les gros projets avec de nombreux fichiers de configuration nécessaires
-    * Dossier : permet de classer ces projets dans des dossiers
-    * Organization folder : permet de créer des sous dossier basé sur les branches d'un dépot de code
-    * Pipeline multibranche : permet de gérer plusieurs branche d'un dépôt de code au sein d'un même pipeline
-* Créer un projet de type Pipeline en lui donnant un nom, en sélectionnant Pipeline et en cliquant sur OK
-* Dans la rubrique Source code management, choisir Git et rentrer l'URL du projet : https://github.com/vanessakovalsky/python-api-handle-it.git (mettre l'URL de votre propre dépôt)
-* Cliquer sur Sauver
-* Vous arrivez sur la page du Job
-* Vous pouvez executer le job en cliquant sur Lancer un build
-* Le job se lance, cliquez dessus pour avoir des informations
-* En allant dans Console Output, que voyez vous ? 
+3. **Interface de déverrouillage**
+   ```
+   ┌─────────────────────────────────────────┐
+   │          Déverrouiller Jenkins          │
+   │                                         │
+   │  Pour s'assurer que Jenkins a été       │
+   │  installé de façon sécurisée par un     │
+   │  administrateur, un mot de passe a été  │
+   │  écrit dans le log et ce fichier sur    │
+   │  le serveur :                           │
+   │                                         │
+   │  /var/jenkins_home/secrets/             │
+   │  initialAdminPassword                   │
+   │                                         │
+   │  ┌─────────────────────────────────────┐│
+   │  │ [Mot de passe administrateur]       ││
+   │  └─────────────────────────────────────┘│
+   │                                         │
+   │              [Continuer]                │
+   └─────────────────────────────────────────┘
+   ```
 
+## Étape 4 : Installation des plugins
+** 15 minutes (incluant temps d'installation)**
 
-## Configurer Github pour déclencher un build à chaque commit
+1. **Choisir "Install suggested plugins"**
+   - Jenkins installera automatiquement les plugins essentiels
 
-### Si votre projet jenkins a une URL publique : 
-* Vous avez besoin d'un token d'API de Jenkins pour configurer le webhook dans github
-* Sur jenkins, cliquer sur votre nom en haut à droite
-* Puis sur Configure dans le menu
-* Dans la section API Token, cliquer sur Add new token, et copier le token généré
+2. **Plugins installés automatiquement :**
+   - Ant Plugin
+   - Build Timeout
+   - Credentials Binding
+   - Email Extension
+   - Git Plugin
+   - Gradle Plugin
+   - Pipeline
+   - SSH Build Agents
+   - Timestamper
+   - Workspace Cleanup
 
-### Si votre projet jenkins a une URL locale non exposée sur internet :
+## Étape 5 : Création du premier utilisateur administrateur
+** 5 minutes**
 
-* Si votre jenkins est en local il faut en plus installer et utiliser un relay qui se permettra à Jenkins et à Github de communiquer via une URL publique. Pour cela voici les étapes à suivre : 
-    * Installer l'outil CLI en fonction de votre OS : https://webhookrelay.com/v1/installation/cli 
-    * Se connecter (avec votre compte github) sur https://my.webhookrelay.com/ 
-    * Générer un token d'identification sur la page Token (une fois connecté dans le menu de gauche Access tokens > + Generate token) : https://my.webhookrelay.com/tokens 
-    * Lors de la creation du token, webhook relay vous donne une commande de connexion de la forme
-    ```
-    relay login -k [key] -s [secret]
-    ```
-    * Copier cette commande et exécuter la dans un terminal pour pouvoir vous connecter à webhook relay
-    * Puis lançons le relay entre votre jenkins local et webhook relay avec la commande :
-    ```
-    relay forward --bucket github-jenkins http://localhost:8080/github-webhook/
-    ```
-    * Vous obtenez alors une réponse de ce type là, noter l'URL qui se trouve dans la réponse :
-    ```
-    Forwarding:
-    https://my.webhookrelay.com/v1/webhooks/6edf55c7-e774-46f8-a058-f4d9c527a6a7 -> http://localhost:8080/github-webhook/
-    Starting webhook relay agent...
-    1.511438424864371e+09    info    webhook relay ready...    {"host": "api.webhookrelay.com:8080"}
-    ```
-    * Vous avez l'URL nécessaire pour la suite
+```
+┌─────────────────────────────────────────┐
+│       Créer le premier utilisateur      │
+│                                         │
+│  Nom d'utilisateur : [admin]            │
+│  Mot de passe :     [votre_mdp]         │
+│  Confirmer :        [votre_mdp]         │
+│  Nom complet :      [Admin Jenkins]     │
+│  Email :           [admin@company.com]  │
+│                                         │
+│         [Sauvegarder et continuer]      │
+└─────────────────────────────────────────┘
+```
 
-### Dans tous les cas il faut configurer github et jenkins comme suit une fois l'URL obtenue
+## Étape 6 : Configuration de l'URL d'instance
+** 2 minutes**
 
-* Aller sur votre projet Github
-* Dans les paramètres, choisir Webhook
-* Cliquer sur Add webhook :
-* * Dans payload URL, entrer l'adresse de Jenkins sous la forme
-    * Pour les url publique: http://[login]:[APITOKEN]@[URLduJenkins.com:8080]/github-webhook
-    * Pour les URL locale : https://[id].hooks.webrelay.com  (URL à récupérer lors du lancement de la commande relay forward, qui doit rester démarrer pour faire vos tests (pas de Ctrl+C))
-* Enregistrer
-* Côté Jenkins, aller dans le job
-* Dans la rubrique Build Triggers, cochez la case : GitHub hook trigger for GITScm polling 
+```
+Jenkins URL : http://localhost:8080/
+```
 
+## Étape 7 : Configuration des outils
+** 20 minutes**
 
+1. **Aller dans "Administrer Jenkins" > "Configuration globale des outils"**
 
+2. **Configurer JDK :**
+   ```
+   Nom : JDK-11
+   ☑ Installer automatiquement
+   Version : openjdk-11.0.2
+   ```
 
--> Votre job est configuré pour être lancé à chaque push sur la branche master dans votre dépôt Github
-/!\ Afin que le lien se fasse, il faut configurer un pipeline qui fera un git clone au moins, et le lancer une première fois
+3. **Configurer Git :**
+   ```bash
+   # Dans le container Jenkins
+   docker exec -it jenkins-master bash
+   git config --global user.name "Jenkins"
+   git config --global user.email "jenkins@company.com"
+   ```
+
+4. **Configurer Maven :**
+   ```
+   Nom : Maven-3.8
+   ☑ Installer automatiquement
+   Version : 3.8.6
+   ```
+
+## Étape 8 : Test de l'installation
+** 15 minutes**
+
+1. **Créer un job de test**
+   - Cliquer sur "Nouvel élément"
+   - Nom : `test-installation`
+   - Type : "Projet free-style"
+
+2. **Configuration du job**
+   ```bash
+   # Dans la section "Build"
+   # Ajouter une étape "Exécuter un script shell"
+   echo "Hello Jenkins!"
+   echo "Java version:"
+   java -version
+   echo "Current date:"
+   date
+   ```
+
+3. **Lancer le build**
+   - Cliquer sur "Lancer un build"
+   - Vérifier la console de sortie
+
+### Étape 9 : Commandes utiles pour la gestion
+** 8 minutes**
+
+```bash
+# Voir les logs Jenkins
+docker logs jenkins-master
+
+# Accéder au container
+docker exec -it jenkins-master bash
+
+# Arrêter Jenkins
+docker stop jenkins-master
+
+# Redémarrer Jenkins
+docker start jenkins-master
+
+# Sauvegarder les données Jenkins
+docker run --rm \
+  --volumes-from jenkins-master \
+  -v $(pwd):/backup \
+  ubuntu tar czf /backup/jenkins-backup.tar.gz /var/jenkins_home
+```
+
+## Vérification de l'installation
+
+### Checklist de validation
+
+- [ ] Jenkins accessible sur http://localhost:8080
+- [ ] Connexion administrateur fonctionnelle
+- [ ] Plugins de base installés
+- [ ] JDK configuré et fonctionnel
+- [ ] Git disponible
+- [ ] Maven configuré
+- [ ] Job de test exécuté avec succès
+
+### Résolution des problèmes courants
+
+| Problème | Solution |
+|----------|----------|
+| Port 8080 occupé | Changer le port : `-p 8081:8080` |
+| Permissions Docker | Ajouter l'utilisateur au groupe docker |
+| Mémoire insuffisante | Augmenter `-e JAVA_OPTS="-Xmx2048m"` |
+| Container ne démarre pas | Vérifier les logs avec `docker logs` |
