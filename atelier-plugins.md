@@ -1,6 +1,6 @@
- # Atelier 8 : Installation et configuration de plugins
+ # Atelier : Installation et configuration de plugins
 
-**Objective :** Installer et configurer des plugins essentiels
+**Objectif :** Installer et configurer des plugins essentiels
 
 ## Étape 1 : Plugins via Docker
 
