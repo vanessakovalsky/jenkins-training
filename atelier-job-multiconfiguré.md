@@ -25,7 +25,34 @@ docker build -f Dockerfile.node16 -t test-node:16 .
 docker build -f Dockerfile.node18 -t test-node:18 .
 ```
 
-## Étape 2 : Script de test matriciel
+## Etape 2 : Création du projet multi configuration
+
+* Créer un nouveau projet multi configuration dans l'UI de Jenkins avec les paramères suivants :
+
+```
+# Configuration Axes
+Axes:
+  - Name: "NODE_VERSION"
+    Values: "16 18 20"
+    
+  - Name: "OS"
+    Values: "ubuntu-20.04 ubuntu-22.04"
+    
+  - Name: "ARCH"
+    Values: "x86_64 arm64"
+
+# Filtres de combinaisons
+Combination Filter: "!(OS=='ubuntu-20.04' && NODE_VERSION=='20')"
+
+# Stratégie d'exécution
+Execution Strategy:
+  - Run each configuration sequentially
+  - Touch stone builds: NODE_VERSION=="18" && OS=="ubuntu-22.04"
+```
+
+## Étape 3 : Ajout du Script de test matriciel
+
+* Ajouter dans les étapes de build le script shell suivant : 
 
 ```bash
 #!/bin/bash
@@ -54,3 +81,7 @@ docker run --rm -v ${WORKSPACE}:/app ${IMAGE} sh -c "
 
 echo "✅ Tests terminés pour Node.js ${NODE_VERSION}"
 ```
+
+## Etape 4 : Exécuter le build
+
+* Lancer un build et observer ce qu'il se passe
