@@ -17,7 +17,6 @@ Installer et configurer Jenkins dans un environnement Docker, puis effectuer la 
 docker network create jenkins
 
 # Créer un volume pour persister les données
-docker volume create jenkins-docker-certs
 docker volume create jenkins-data
 ```
 
