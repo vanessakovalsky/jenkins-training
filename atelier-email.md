@@ -191,3 +191,21 @@ send_teams_notification "${BUILD_STATUS}"
 
 echo "✅ Notifications envoyées"
 ```
+
+## Étape 4 : Configuration RSS Feed
+
+```xml
+<!-- Configuration RSS pour Jenkins -->
+<!-- Accessible via http://jenkins:8080/rssAll -->
+<rss version="2.0">
+    <channel>
+        <title>Jenkins Build Feed</title>
+        <description>Flux RSS des builds Jenkins</description>
+        <link>http://jenkins:8080</link>
+        
+        <!-- Configuration dans Jenkins Global Tool Configuration -->
+        <!-- Enable RSS Feed: true -->
+        <!-- RSS URL: http://jenkins:8080/job/${JOB_NAME}/rssAll -->
+    </channel>
+</rss>
+```
