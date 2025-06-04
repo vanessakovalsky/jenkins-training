@@ -1,4 +1,4 @@
-# ATELIER 4 : Pipeline avec Docker et Kubernetes (30min)
+# ATELIER : Pipeline avec Docker et Kubernetes
 
 ### Objectif
 Créer un pipeline utilisant Docker pour les builds et Kubernetes pour le déploiement.
