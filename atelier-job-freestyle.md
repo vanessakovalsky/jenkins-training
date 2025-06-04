@@ -1,4 +1,5 @@
-Atelier 1 : Environnement Docker Jenkins
+# Création d'un job freestyle
+
 
 **Objectif :** 
 
@@ -83,6 +84,9 @@ docker exec jenkins-master cat /var/jenkins_home/secrets/initialAdminPassword
 #### Étape 3 : Préparation du projet de test
 
 Créez un projet Node.js simple :
+
+* Créer un dossier et se mettre à l'intérieur
+* Les deux commandes suivantes vont créer les fichiers de l'application que l'on va builder.
 
 ```bash
 # Créer la structure du projet
