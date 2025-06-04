@@ -6,7 +6,7 @@
 - Préparer un environnement Jenkins complet avec Docker
 - Créer un job de build pour une application Node.js
 
-#### Étape 1 : Configuration Docker Compose
+## Étape 1 : Configuration Docker Compose
 
 Créez le fichier `docker-compose.yml` :
 
@@ -16,14 +16,13 @@ services:
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins-master
+    build : .
     ports:
       - "8080:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
     networks:
       - jenkins-network
 
@@ -68,7 +67,10 @@ networks:
     driver: bridge
 ```
 
-#### Étape 2 : Démarrage de l'environnement
+## Étape 2 : Démarrage de l'environnement
+
+* Récupérer le fichier Docker file à cette adresse [Dockerfile](docker/Dockerfile) et le mettre au même niveau que le docker compose
+* Puis lancer les commandes suivantes
 
 ```bash
 # Démarrer l'environnement
@@ -81,102 +83,11 @@ docker-compose ps
 docker exec jenkins-master cat /var/jenkins_home/secrets/initialAdminPassword
 ```
 
-#### Étape 3 : Préparation du projet de test
+## Étape 3 : Préparation du projet de test
 
-Créez un projet Node.js simple :
-
-* Créer un dossier et se mettre à l'intérieur
-* Les deux commandes suivantes vont créer les fichiers de l'application que l'on va builder.
-
-```bash
-# Créer la structure du projet
-mkdir nodejs-app && cd nodejs-app
-
-# Fichier package.json
-cat > package.json << EOF
-{
-  "name": "jenkins-demo-app",
-  "version": "1.0.0",
-  "description": "Application de démonstration Jenkins",
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js",
-    "test": "mocha test/",
-    "lint": "eslint .",
-    "build": "echo 'Build completed'"
-  },
-  "dependencies": {
-    "express": "^4.18.0"
-  },
-  "devDependencies": {
-    "mocha": "^10.0.0",
-    "chai": "^4.3.0",
-    "eslint": "^8.0.0"
-  }
-}
-EOF
-
-# Fichier app.js
-cat > app.js << EOF
-const express = require('express');
-const app = express();
-const port = 3000;
-
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello Jenkins!', version: '1.0.0' });
-});
-
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-if (require.main === module) {
-  app.listen(port, () => {
-    console.log(\`App listening at http://localhost:\${port}\`);
-  });
-}
-
-module.exports = app;
-EOF
-
-# Tests unitaires
-mkdir test
-cat > test/app.test.js << EOF
-const chai = require('chai');
-const request = require('supertest');
-const app = require('../app');
-
-const expect = chai.expect;
-
-describe('Application Tests', () => {
-  it('should return hello message', (done) => {
-    request(app)
-      .get('/')
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        expect(res.body.message).to.equal('Hello Jenkins!');
-        done();
-      });
-  });
-
-  it('should return health status', (done) => {
-    request(app)
-      .get('/health')
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        expect(res.body.status).to.equal('OK');
-        done();
-      });
-  });
-});
-EOF
-```
-
-* Créer on se connecter sur github (https://github.com/)
-* Créer un projet public appelé nodejs-app
-* Pousser les fichiers créé sur le dépôt
+* Connectez vous à votre compte github
+* Forker le projet https://github.com/vanessakovalsky/nodejs-app/tree/main
+* Le projet est une application NodeJs qui va nous permettre d'exécuter différentes étapes de build.
 
 #### Étape 4 : Configuration du job Jenkins
 
@@ -210,7 +121,7 @@ Build Environment:
 
 * Enregistrer le job
 
-#### Étape 5 : Déclencheur Poll SCM
+## Étape 4 : Déclencheur Poll SCM
 
 ```cron
 # Syntaxe cron Jenkins
@@ -223,7 +134,7 @@ H H(0-7) * * *   # Une fois par jour entre 0h et 7h
 H H * * 0        # Une fois par semaine le dimanche
 ```
 
-#### Étape 6 : Configuration webhook
+## Étape 5 : Configuration webhook
 
 1. **Dans GitHub** :
    - Settings → Webhooks → Add webhook
@@ -235,7 +146,7 @@ H H * * 0        # Une fois par semaine le dimanche
    - Cocher "GitHub hook trigger for GITScm polling"
   
 
-#### Étape 6 : Dockerfile pour l'application
+## Étape 6 : Dockerfile pour l'application
 
 * Créer dans votre projet un fichier Dockerfile avec le contenu suivant :
 
@@ -266,7 +177,7 @@ CMD ["npm", "start"]
 
 * Pensez à commit et push le fichier
 
-#### Étape 7 : Configuration du build Jenkins
+## Étape 7 : Configuration du build Jenkins
 
 * Ajouter une étape dans votre job qui exécute les commandes shell suivantes :
 
@@ -291,7 +202,7 @@ echo "NPM version: $(npm --version)"
 echo "Docker version: $(docker --version)"
 
 echo "📥 Installation des dépendances"
-npm ci
+npm install
 
 echo "🔍 Analyse statique du code"
 npm run lint
@@ -316,13 +227,16 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
 echo "✅ Build terminé avec succès"
 ```
 
-#### Étape 7 : Lancement du build
+## Étape 8 : Lancement du build
 
 1. Accédez au job `nodejs-app-build`
 2. Cliquez sur "Lancer un build"
 3. Observez la console output en temps réel
 
-#### Étape 2 : Analyse des résultats
+#### Étape 9 : Analyse des résultats
+
+* Se connecter au conteneur : docker compose exec -it jenkins bash
+* Exécuter les commandes suivantes
 
 ```bash
 # Vérification des artefacts générés
