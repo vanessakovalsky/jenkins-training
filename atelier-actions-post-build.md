@@ -4,6 +4,9 @@
 
 ## Étape 1 : Script de build avec artefacts
 
+* Créer un nouveau projet à partir du dépôt Nodejs-app utilisé lors d'un précédent exercice.
+* Ajouter en étape de build le script suivant : 
+
 ```bash
 #!/bin/bash
 # build-with-artifacts.sh
@@ -54,6 +57,8 @@ echo "✅ Artefacts générés avec succès"
 
 ## Étape 2 : Configuration Jenkins avancée
 
+* Dans la configuration du projet, ajouter les actions post-builds suivantes :
+
 ```yaml
 # Post-build Actions dans Jenkins
 
@@ -75,3 +80,6 @@ echo "✅ Artefacts générés avec succès"
    Push Only If Build Succeeds: true
    Tags to push: "build-${BUILD_NUMBER}"
 ```
+
+* Exécuter le pipeline
+* Que se passe t'il de plus ?
