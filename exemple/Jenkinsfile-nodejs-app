@@ -1,0 +1,227 @@
+// Jenkinsfile pour pipeline complet
+pipeline {
+    agent {
+        docker {
+            image 'node:18-alpine'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+    
+    environment {
+        APP_NAME = 'nodejs-demo-app'
+        DOCKER_REGISTRY = 'localhost:5000'
+        SONAR_HOST_URL = 'http://sonarqube:9000'
+    }
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+    }
+    
+    triggers {
+        pollSCM('H/5 * * * *')
+        cron('H 0 * * *') // Build nocturne
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+        
+        stage('Dependencies') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+        
+        stage('Code Quality') {
+            parallel {
+                stage('Lint') {
+                    steps {
+                        sh 'npm run lint'
+                    }
+                    post {
+                        always {
+                            publishHTML([
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: true,
+                                keepAll: true,
+                                reportDir: 'reports',
+                                reportFiles: 'lint.html',
+                                reportName: 'ESLint Report'
+                            ])
+                        }
+                    }
+                }
+                
+                stage('Security Audit') {
+                    steps {
+                        sh 'npm audit --json > security-audit.json || true'
+                    }
+                }
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                sh 'npm run test:coverage'
+            }
+            post {
+                always {
+                    publishTestResults(
+                        testResultsPattern: 'test-results.xml'
+                    )
+                    publishCoverage(
+                        adapters: [
+                            istanbulCoberturaAdapter('coverage/cobertura-coverage.xml')
+                        ],
+                        sourceFileResolver: sourceFiles('NEVER_STORE')
+                    )
+                }
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        npx sonar-scanner \
+                        -Dsonar.projectKey=${APP_NAME} \
+                        -Dsonar.projectVersion=${BUILD_NUMBER} \
+                        -Dsonar.sources=src \
+                        -Dsonar.tests=test \
+                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                    '''
+                }
+            }
+        }
+        
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'npm run build'
+                sh '''
+                    docker build -t ${APP_NAME}:${BUILD_NUMBER} .
+                    docker tag ${APP_NAME}:${BUILD_NUMBER} ${APP_NAME}:latest
+                '''
+            }
+        }
+        
+        stage('Deploy to Staging') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                sh '''
+                    docker run -d --name ${APP_NAME}-staging-${BUILD_NUMBER} \
+                        -p 3001:3000 \
+                        ${APP_NAME}:${BUILD_NUMBER}
+                '''
+            }
+        }
+        
+        stage('Integration Tests') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                sh 'npm run test:integration'
+            }
+            post {
+                always {
+                    sh 'docker stop ${APP_NAME}-staging-${BUILD_NUMBER} || true'
+                    sh 'docker rm ${APP_NAME}-staging-${BUILD_NUMBER} || true'
+                }
+            }
+        }
+        
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: 'Deploy to production?', ok: 'Deploy'
+                sh '''
+                    docker tag ${APP_NAME}:${BUILD_NUMBER} ${DOCKER_REGISTRY}/${APP_NAME}:${BUILD_NUMBER}
+                    docker push ${DOCKER_REGISTRY}/${APP_NAME}:${BUILD_NUMBER}
+                '''
+            }
+        }
+    }
+    
+    post {
+        always {
+            archiveArtifacts(
+                artifacts: 'dist/**,reports/**,coverage/**',
+                allowEmptyArchive: true
+            )
+            
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'coverage/lcov-report',
+                reportFiles: 'index.html',
+                reportName: 'Coverage Report'
+            ])
+        }
+        
+        success {
+            slackSend(
+                channel: '#ci-cd',
+                color: 'good',
+                message: ":white_check_mark: Build Success - ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+            )
+        }
+        
+        failure {
+            slackSend(
+                channel: '#ci-cd',
+                color: 'danger',
+                message: ":x: Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+            )
+            
+            emailext(
+                subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: '''
+                    Build Failed: ${BUILD_URL}
+                    
+                    Changes:
+                    ${CHANGES}
+                    
+                    Console Output:
+                    ${BUILD_LOG, maxLines=100}
+                ''',
+                to: '${DEFAULT_RECIPIENTS}'
+            )
+        }
+        
+        unstable {
+            slackSend(
+                channel: '#ci-cd',
+                color: 'warning',
+                message: ":warning: Build Unstable - ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+            )
+        }
+        
+        cleanup {
+            cleanWs()
+        }
+    }
+}
