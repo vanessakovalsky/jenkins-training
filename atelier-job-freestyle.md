@@ -14,7 +14,7 @@ Créez le fichier `docker-compose.yml` :
 version: '3.8'
 services:
   jenkins:
-    image: jenkins/jenkins:lts
+    image: vanessakovalsky/my-jenkins
     container_name: jenkins-master
     build : .
     ports:
@@ -74,10 +74,10 @@ networks:
 
 ```bash
 # Démarrer l'environnement
-docker-compose up -d --build
+docker compose up
 
 # Vérifier les conteneurs
-docker-compose ps
+docker compose ps
 
 # Récupérer le mot de passe admin
 docker exec jenkins-master cat /var/jenkins_home/secrets/initialAdminPassword
