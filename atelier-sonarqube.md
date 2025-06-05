@@ -56,6 +56,10 @@ module.exports = {
 
 ## Étape 3 : Script d'analyse
 
+* Définir un nouveau projet freestyle avec la même config git sur le projet nodejs
+
+* Ajouter un paramètre d'environnement pour définir le token
+
 ```bash
 #!/bin/bash
 # sonar-analysis.sh
@@ -66,6 +70,10 @@ echo "🔍 Analyse SonarQube en cours..."
 export SONAR_HOST_URL="http://sonarqube:9000"
 export SONAR_TOKEN="${SONAR_AUTH_TOKEN}"
 
+# Installation des dépendances
+
+npm install
+
 # Exécution des tests avec couverture
 npm run test:coverage
 
@@ -74,10 +82,13 @@ npx sonar-scanner \
   -Dsonar.projectKey=nodejs-app \
   -Dsonar.projectName="NodeJS Application" \
   -Dsonar.projectVersion=${BUILD_NUMBER} \
-  -Dsonar.sources=src \
+  -Dsonar.sources=. \
   -Dsonar.tests=test \
+  -Dsonar.exclusions=**./*.test.js \
   -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-  -Dsonar.testExecutionReportPaths=test-results.xml
+  -Dsonar.testExecutionReportPaths=test-results.xml \
+  -Dsonar.host.url=http://sonarqube:9000 \
+  -Dsonar.token=${SONAR_TOKEN}
 
 # Attente du Quality Gate
 echo "⏳ Vérification du Quality Gate..."
