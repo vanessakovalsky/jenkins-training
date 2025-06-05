@@ -65,7 +65,6 @@ pipeline {
     
     post {
         always {
-            junit 'test-results.xml'
             publishHTML([
                 allowMissing: false,
                 alwaysLinkToLastBuild: true,
