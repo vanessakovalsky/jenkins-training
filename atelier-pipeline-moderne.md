@@ -79,9 +79,11 @@ pipeline {
 }
 ```
 
+* Pousser le dépôt sur un dépôt public ou utiliser le dépôt : https://github.com/vanessakovalsky/jenkins-training (le fichier Jenkinsfile est dans le dossier corrige/atelier-pipeline/
+
 3. **Configuration Jenkins**
-- Créer un nouveau pipeline multibranch
-- Configurer la source Git
+- Créer un nouveau projet de type pipeline 
+- Configurer la source Git et le chemin vers le jenkins file 
 - Observer dans Blue Ocean
 
 ### Questions de Validation
