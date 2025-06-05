@@ -3,6 +3,12 @@
 ### Objectif
 Créer un pipeline utilisant Docker pour les builds et Kubernetes pour le déploiement.
 
+
+## Préparation
+
+* créer un projet Pipeline
+* Installer le plugin Docker pipeline 
+
 ### Pipeline Complet
 
 ```groovy
