@@ -1,0 +1,106 @@
+pipeline {
+    agent any
+    
+    parameters {
+        choice(name: 'BUILD_TYPE', choices: ['debug', 'release'], description: 'Type de build')
+        string(name: 'VERSION', defaultValue: '1.0.0', description: 'Version de l\'application')
+        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Executer les tests')
+        text(name: 'CHANGELOG', defaultValue: '', description: 'Notes de version')
+    }
+    
+    environment {
+        APP_VERSION = "${params.VERSION}-${env.BUILD_NUMBER}"
+        BUILD_CONFIG = "${params.BUILD_TYPE}"
+    }
+    
+    stages {
+        stage('Setup') {
+            steps {
+                echo "Building version ${APP_VERSION} in ${BUILD_CONFIG} mode"
+                sh 'mkdir -p build logs'
+            }
+        }
+        
+        stage('Parallel Operations') {
+            parallel {
+                stage('Static Analysis') {
+                    steps {
+                        sh 'echo "Running static analysis..." > logs/static-analysis.log'
+                        sleep 5
+                        sh 'echo "Static analysis completed" >> logs/static-analysis.log'
+                    }
+                }
+                stage('Dependency Check') {
+                    steps {
+                        sh 'echo "Checking dependencies..." > logs/dependency-check.log'
+                        sleep 3
+                        sh 'echo "Dependencies OK" >> logs/dependency-check.log'
+                    }
+                }
+                stage('Build Application') {
+                    steps {
+                        script {
+                            if (params.BUILD_TYPE == 'release') {
+                                sh 'echo "Building release version..." > logs/build.log'
+                                sh 'echo "Optimizing..." >> logs/build.log'
+                            } else {
+                                sh 'echo "Building debug version..." > logs/build.log'
+                                sh 'echo "Including debug symbols..." >> logs/build.log'
+                            }
+                        }
+                        sleep 4
+                    }
+                }
+            }
+        }
+        
+        stage('Testing') {
+            when {
+                expression { params.RUN_TESTS }
+            }
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh 'echo "Running unit tests..." > logs/unit-tests.log'
+                        sleep 6
+                        sh 'echo "All tests passed" >> logs/unit-tests.log'
+                    }
+                }
+                stage('Integration Tests') {
+                    steps {
+                        sh 'echo "Running integration tests..." > logs/integration-tests.log'
+                        sleep 8
+                        sh 'echo "Integration tests completed" >> logs/integration-tests.log'
+                    }
+                }
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                sh 'tar czf app-${APP_VERSION}.tar.gz logs/ build/'
+                archiveArtifacts artifacts: 'app-*.tar.gz'
+            }
+        }
+    }
+    
+    post {
+        always {
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'logs',
+                reportFiles: '*.log',
+                reportName: 'Build Logs'
+            ])
+        }
+        success {
+            script {
+                if (params.CHANGELOG.trim()) {
+                    echo "Changelog: ${params.CHANGELOG}"
+                }
+            }
+        }
+    }
+}
