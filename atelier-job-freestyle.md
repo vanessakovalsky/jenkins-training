@@ -74,7 +74,7 @@ networks:
 
 ```bash
 # Démarrer l'environnement
-docker-compose up -d
+docker-compose up -d --build
 
 # Vérifier les conteneurs
 docker-compose ps
@@ -146,38 +146,7 @@ H H * * 0        # Une fois par semaine le dimanche
    - Cocher "GitHub hook trigger for GITScm polling"
   
 
-## Étape 6 : Dockerfile pour l'application
-
-* Créer dans votre projet un fichier Dockerfile avec le contenu suivant :
-
-```dockerfile
-# Dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copie des fichiers de dépendances
-COPY package*.json ./
-
-# Installation des dépendances
-RUN npm ci --only=production
-
-# Copie du code source
-COPY . .
-
-# Exposition du port
-EXPOSE 3000
-
-# Utilisateur non-root pour la sécurité
-USER node
-
-# Commande de démarrage
-CMD ["npm", "start"]
-```
-
-* Pensez à commit et push le fichier
-
-## Étape 7 : Configuration du build Jenkins
+## Étape 6 : Configuration du build Jenkins
 
 * Ajouter une étape dans votre job qui exécute les commandes shell suivantes :
 
@@ -227,13 +196,13 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
 echo "✅ Build terminé avec succès"
 ```
 
-## Étape 8 : Lancement du build
+## Étape 7 : Lancement du build
 
 1. Accédez au job `nodejs-app-build`
 2. Cliquez sur "Lancer un build"
 3. Observez la console output en temps réel
 
-#### Étape 9 : Analyse des résultats
+## Étape 8 : Analyse des résultats
 
 * Se connecter au conteneur : docker compose exec -it jenkins bash
 * Exécuter les commandes suivantes
