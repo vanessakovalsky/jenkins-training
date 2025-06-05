@@ -80,9 +80,6 @@ pipeline {
         }
         
         stage('Post-deployment Tests') {
-            when {
-                not { params.SKIP_TESTS }
-            }
             parallel {
                 stage('Smoke Tests') {
                     steps {
