@@ -4,6 +4,13 @@
 
 ## Étape 1 : Configuration SonarQube
 
+* Vous avez deux manières de configurer SonarQube : soit en passant par l'interface, soit via des appels à l'API
+* Pour l'interface, rendez vous sur http://localhost:9000
+* Connectez vous avec les identifiants admin/admin puis définissez un mot de passe
+* Dans votre compte (en haut a droit en cliquant sur la lettre du nom de l'utilisateur), générer un token global et noter le. 
+
+
+* On peut également obtenir le token en bash
 ```bash
 # Démarrage de SonarQube (déjà dans docker-compose.yml)
 docker-compose up -d sonarqube
@@ -27,39 +34,12 @@ SONAR_TOKEN=$(curl -u admin:newpassword -X POST \
 echo "Token SonarQube: ${SONAR_TOKEN}"
 ```
 
-## Étape 2 : Configuration du projet SonarQube
+## Étape 2 : Configuration du projet SonarQube dans Jenkins
 
-```javascript
-// sonar-project.js - Configuration pour Node.js
-module.exports = {
-  serverUrl: 'http://localhost:9000',
-  token: process.env.SONAR_TOKEN,
-  options: {
-    'sonar.projectKey': 'nodejs-app',
-    'sonar.projectName': 'NodeJS Application Demo',
-    'sonar.projectVersion': process.env.BUILD_NUMBER || '1.0.0',
-    'sonar.sources': 'src',
-    'sonar.tests': 'test',
-    'sonar.javascript.lcov.reportPaths': 'coverage/lcov.info',
-    'sonar.testExecutionReportPaths': 'test-results.xml',
-    'sonar.coverage.exclusions': [
-      'test/**/*',
-      'coverage/**/*',
-      'node_modules/**/*'
-    ].join(','),
-    'sonar.cpd.exclusions': [
-      'test/**/*'
-    ].join(',')
-  }
-};
-```
-
-## Étape 3 : Script d'analyse
-
-* Définir un nouveau projet freestyle avec la même config git sur le projet nodejs
-
-* Ajouter un paramètre d'environnement pour définir le token
-
+* Définir un nouveau projet freestyle avec la même config git que celle du projet nodejs
+* Définir une variable d'environement nommée SONAR_AUTH_TOKEN qui contient le token sous le format Secret-texte.
+* Ajouter une étape de build avec le script shell suivant :
+  
 ```bash
 #!/bin/bash
 # sonar-analysis.sh
@@ -74,8 +54,8 @@ export SONAR_TOKEN="${SONAR_AUTH_TOKEN}"
 
 npm install
 
-# Exécution des tests avec couverture
-npm run test:coverage
+# Exécution des tests unitaires
+npm run test
 
 # Analyse SonarQube
 npx sonar-scanner \
@@ -85,7 +65,6 @@ npx sonar-scanner \
   -Dsonar.sources=. \
   -Dsonar.tests=test \
   -Dsonar.exclusions=**./*.test.js \
-  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
   -Dsonar.testExecutionReportPaths=test-results.xml \
   -Dsonar.host.url=http://sonarqube:9000 \
   -Dsonar.token=${SONAR_TOKEN}
@@ -108,3 +87,6 @@ else
     echo "✅ Quality Gate passed!"
 fi
 ```
+
+* Exécuter le build
+* Une fois le build terminé en succès, aller voir dans SonarQube que vos informations qualités et de tests sont bien remontées.
