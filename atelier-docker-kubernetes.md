@@ -9,14 +9,26 @@ Créer un pipeline utilisant Docker pour les builds et Kubernetes pour le déplo
 * créer un projet Pipeline
 * Installer le plugin Docker pipeline 
 
-### Pipeline Complet
+### Ajouter le service suivant dans votre docker compose :
+
+```
+  registry:
+    image: registry:2
+    ports: 
+      - "5000:5000"
+    container_name: registry
+    networks:
+       - jenkins-network
+```
+
+## Pipeline Complet
 
 ```groovy
 pipeline {
     agent none
     
     environment {
-        DOCKER_REGISTRY = 'localhost:5000'
+        DOCKER_REGISTRY = 'registry:5000'
         APP_NAME = 'demo-k8s-app'
         VERSION = "${env.BUILD_NUMBER}"
     }
