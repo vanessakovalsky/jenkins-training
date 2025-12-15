@@ -1,0 +1,25 @@
+networks:
+  custom:
+    driver: bridge
+services:
+  jenkins:
+    image: jenkins/jenkins
+    ports:
+      - "8052:8080"
+      - "50042:50000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      custom:
+    domainname: codespaces.io
+    hostname: jenkins
+    restart: always
+  artifactory:
+    image: docker.bintray.io/jfrog/artifactory-oss
+    ports:
+      - "8081:8081"
+    networks:
+      custom:
+    domainname: codespaces.io
+    hostname: artifactory
+    restart: always
